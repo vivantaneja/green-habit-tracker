@@ -57,7 +57,7 @@ export default function Settings() {
               onChange={() => setUnitPrefs((prev) => ({ ...prev, massSystem: 'metric' }))}
               className="h-4 w-4 border-slate-300 text-primary-600 focus:ring-primary-500"
             />
-            <span className="text-sm font-medium text-slate-700">Metric</span>
+            <span className="text-sm font-medium text-slate-700">Grams / Kilograms (g / kg)</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -67,7 +67,7 @@ export default function Settings() {
               onChange={() => setUnitPrefs((prev) => ({ ...prev, massSystem: 'imperial' }))}
               className="h-4 w-4 border-slate-300 text-primary-600 focus:ring-primary-500"
             />
-            <span className="text-sm font-medium text-slate-700">Imperial</span>
+            <span className="text-sm font-medium text-slate-700">Ounces / Pounds (oz / lb)</span>
           </label>
         </div>
       </section>
@@ -86,7 +86,7 @@ export default function Settings() {
               onChange={() => setUnitPrefs((prev) => ({ ...prev, volumeSystem: 'metric' }))}
               className="h-4 w-4 border-slate-300 text-primary-600 focus:ring-primary-500"
             />
-            <span className="text-sm font-medium text-slate-700">Metric</span>
+            <span className="text-sm font-medium text-slate-700">Millilitres / Litres (ml / l)</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -96,7 +96,7 @@ export default function Settings() {
               onChange={() => setUnitPrefs((prev) => ({ ...prev, volumeSystem: 'imperial' }))}
               className="h-4 w-4 border-slate-300 text-primary-600 focus:ring-primary-500"
             />
-            <span className="text-sm font-medium text-slate-700">Imperial</span>
+            <span className="text-sm font-medium text-slate-700">Fluid Ounces / Gallons (fl oz / gal)</span>
           </label>
         </div>
       </section>
