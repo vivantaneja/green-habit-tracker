@@ -101,6 +101,22 @@ function App() {
             >
               Settings
             </NavLink>
+            <a
+              href="https://github.com/vivantaneja"
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://vivantaneja.com"
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900"
+            >
+              Website
+            </a>
             <Link
               to="/habits"
               className="ml-2 rounded-lg bg-primary-700 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-800 transition-colors"
@@ -196,6 +212,22 @@ function App() {
               >
                 Settings
               </NavLink>
+              <a
+                href="https://github.com/vivantaneja"
+                target="_blank"
+                rel="noreferrer"
+                className="block rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                GitHub
+              </a>
+              <a
+                href="https://vivantaneja.com"
+                target="_blank"
+                rel="noreferrer"
+                className="block rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Website
+              </a>
               <Link
                 to="/habits"
                 onClick={() => setMobileOpen(false)}
