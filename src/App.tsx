@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Routes, Route, NavLink, Link } from 'react-router-dom'
-import { Leaf } from './components/Icons'
+import { Leaf, Github, Globe } from './components/Icons'
 import Dashboard from './pages/Dashboard'
 import Habits from './pages/Habits'
 import Impact from './pages/Impact'
@@ -101,22 +101,6 @@ function App() {
             >
               Settings
             </NavLink>
-            <a
-              href="https://github.com/vivantaneja"
-              target="_blank"
-              rel="noreferrer"
-              className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900"
-            >
-              GitHub
-            </a>
-            <a
-              href="https://vivantaneja.com"
-              target="_blank"
-              rel="noreferrer"
-              className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900"
-            >
-              Website
-            </a>
             <Link
               to="/habits"
               className="ml-2 rounded-lg bg-primary-700 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-800 transition-colors"
@@ -212,22 +196,6 @@ function App() {
               >
                 Settings
               </NavLink>
-              <a
-                href="https://github.com/vivantaneja"
-                target="_blank"
-                rel="noreferrer"
-                className="block rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                GitHub
-              </a>
-              <a
-                href="https://vivantaneja.com"
-                target="_blank"
-                rel="noreferrer"
-                className="block rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                Website
-              </a>
               <Link
                 to="/habits"
                 onClick={() => setMobileOpen(false)}
@@ -249,6 +217,32 @@ function App() {
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
+      <footer className="border-t border-slate-200 bg-white">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-center gap-6 text-sm">
+          <a
+            href="https://github.com/vivantaneja"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+            aria-label="GitHub"
+            title="GitHub"
+          >
+            <Github className="h-5 w-5" size={20} />
+            <span>GitHub</span>
+          </a>
+          <a
+            href="https://vivantaneja.com"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+            aria-label="Website"
+            title="Website"
+          >
+            <Globe className="h-5 w-5" size={20} />
+            <span>Website</span>
+          </a>
+        </div>
+      </footer>
     </div>
   )
 }

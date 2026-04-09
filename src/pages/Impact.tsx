@@ -15,6 +15,7 @@ import {
 import { clearAllAppData } from '../lib/resetData'
 import { formatDistanceNumber } from '../lib/distanceUnit'
 import { useDistanceUnit } from '../hooks/useDistanceUnit'
+import { useUnitPreferences } from '../hooks/useUnitPreferences'
 import { HABITS } from '../lib/habits'
 import { ImpactMetric } from '../components/ImpactMetric'
 import { ImpactBar } from '../components/ImpactBar'
@@ -23,6 +24,7 @@ import { ProgressChart } from '../components/ProgressChart'
 import { BottleIllustration } from '../components/BottleIllustration'
 import { TreeIllustration } from '../components/TreeIllustration'
 import { BikeIllustration } from '../components/BikeIllustration'
+import { getHabitDisplayMeasurement } from '../lib/measurementUnits'
 
 const HABIT_ICONS: Record<string, ComponentType<{ className?: string; size?: number }>> = {
   'no-plastic-bottle': Bottle,
@@ -49,6 +51,7 @@ export default function Impact() {
   const { logs } = useHabitLogs()
   const { entries: reTurnEntries, totals: reTurnTotalsAll } = useReTurnLogs()
   const [distanceUnit] = useDistanceUnit()
+  const [unitPrefs] = useUnitPreferences()
   const [timeline, setTimeline] = useState<Timeline>('all')
   const [daysRange, setDaysRange] = useState<7 | 30>(7)
 
@@ -303,9 +306,12 @@ export default function Impact() {
             if (count === 0) return null
             const habitBottles = Math.max(0, Number(byHabit?.bottles ?? 0))
             const habitCo2 = Math.max(0, Number(byHabit?.co2Kg ?? 0))
-            const isDistanceHabit = habit.co2KgPerKm != null
-            const displayCount = isDistanceHabit ? formatDistanceNumber(count, distanceUnit) : String(count)
-            const displayUnit = isDistanceHabit ? (distanceUnit === 'miles' ? 'mi' : 'km') : habit.unit
+            const display = getHabitDisplayMeasurement(
+              habit.id,
+              count,
+              { ...unitPrefs, distance: distanceUnit },
+              habit.unit
+            )
             const Icon = HABIT_ICONS[habit.id] ?? Recycle
             return (
               <li
@@ -320,8 +326,8 @@ export default function Impact() {
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-2xl font-semibold tabular-nums text-slate-900">{displayCount}</span>
-                    <span className="text-sm text-slate-500">{displayUnit}</span>
+                    <span className="text-2xl font-semibold tabular-nums text-slate-900">{display.valueLabel}</span>
+                    <span className="text-sm text-slate-500">{display.unit}</span>
                   </div>
                   {habitCo2 > 0 && (
                     <span className="text-sm text-slate-500">~{habitCo2.toFixed(1)} kg CO₂ avoided</span>

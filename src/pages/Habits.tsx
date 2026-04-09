@@ -2,10 +2,12 @@ import { Sparkles } from '../components/Icons'
 import { useHabitLogs } from '../hooks/useHabitLogs'
 import { useQuickLogHabits } from '../hooks/useQuickLogHabits'
 import { useDistanceUnit } from '../hooks/useDistanceUnit'
+import { useUnitPreferences } from '../hooks/useUnitPreferences'
 import { formatDistanceNumber } from '../lib/distanceUnit'
 import { useImpactTotals } from '../hooks/useImpactTotals'
 import { HABITS } from '../lib/habits'
 import { HabitCard } from '../components/HabitCard'
+import { getHabitDisplayMeasurement } from '../lib/measurementUnits'
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10)
@@ -15,6 +17,7 @@ export default function Habits() {
   const { logs, addLog, removeLog } = useHabitLogs()
   const { quickLogIds, isInQuickLog, toggleQuickLog } = useQuickLogHabits()
   const [distanceUnit] = useDistanceUnit()
+  const [unitPrefs] = useUnitPreferences()
   const totals = useImpactTotals(logs)
   const today = todayStr()
   const todayLogs = logs.filter((l) => l.date === today)
@@ -22,9 +25,14 @@ export default function Habits() {
   const getCount = (habitId: string) =>
     todayLogs.find((l) => l.habitId === habitId)?.count ?? 0
 
-  const handleLog = (habitId: string, amountToAdd: number) => {
+  const handleAdjust = (habitId: string, delta: number) => {
     const current = getCount(habitId)
-    addLog({ date: today, habitId, count: current + amountToAdd })
+    const next = Math.max(0, current + delta)
+    if (next <= 0) {
+      removeLog(today, habitId)
+      return
+    }
+    addLog({ date: today, habitId, count: next })
   }
 
   return (
@@ -34,14 +42,14 @@ export default function Habits() {
           Habits
         </h1>
         <p className="mt-1 text-sm text-slate-500">
-          Add an amount (or leave blank for 1) and tap Log to add to today’s total. Shown for every habit.
+          Use quick +/− controls or a custom amount to adjust today’s total for every habit.
         </p>
       </div>
 
       <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-card">
         <Sparkles className="h-5 w-5 shrink-0 text-primary-500" size={20} />
         <p className="text-sm text-slate-600">
-          Type how many (or leave blank for 1), then tap Log. Your total for today is shown on each card.
+          Quick +/− updates today instantly. Use Custom amount for larger changes.
         </p>
       </div>
 
@@ -82,16 +90,22 @@ export default function Habits() {
               <HabitCard
                 habit={habit}
                 count={count}
-                onLog={(amount) => handleLog(habit.id, amount)}
+                onAdjust={(delta) => handleAdjust(habit.id, delta)}
                 distanceUnit={distanceUnit}
               />
               {hasImpact && (
                 <p className="text-xs text-slate-500 pl-1">
                   Total: {isDistanceHabit
                     ? `${formatDistanceNumber(Math.max(0, Number(impact?.count ?? 0)), distanceUnit)} ${distanceUnit === 'miles' ? 'mi' : 'km'}`
-                    : habit.bottlesPerCompletion > 0
-                      ? `${Math.max(0, Number(impact.bottles ?? 0))} ${habit.unit}`
-                      : `${Math.max(0, Number(impact?.count ?? 0))} ${habit.unit}`}
+                    : (() => {
+                        const display = getHabitDisplayMeasurement(
+                          habit.id,
+                          Math.max(0, Number(impact?.count ?? 0)),
+                          unitPrefs,
+                          habit.unit
+                        )
+                        return `${display.valueLabel} ${display.unit}`
+                      })()}
                   {showCo2 && ` · ~${(Number(impact?.co2Kg) || 0).toFixed(1)} kg CO₂`}
                 </p>
               )}

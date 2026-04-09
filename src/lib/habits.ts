@@ -4,7 +4,7 @@ import type { Habit } from '../types'
 export const HABITS: Habit[] = [
   {
     id: 'no-plastic-bottle',
-    name: 'No plastic water bottle',
+    name: 'No Plastic Water Bottle',
     unit: 'bottles saved',
     bottlesPerCompletion: 1,
     co2KgPerCompletion: 0,
@@ -12,7 +12,7 @@ export const HABITS: Habit[] = [
   },
   {
     id: 'reusable-bag',
-    name: 'Reusable bag',
+    name: 'Reusable Bag',
     unit: 'bags avoided',
     bottlesPerCompletion: 0,
     co2KgPerCompletion: 0.02,
@@ -20,7 +20,7 @@ export const HABITS: Habit[] = [
   },
   {
     id: 'bike-walk',
-    name: 'Bike or walk instead of car',
+    name: 'Bike or Walk Instead of Car',
     unit: 'km',
     bottlesPerCompletion: 0,
     co2KgPerCompletion: 0,
@@ -38,7 +38,7 @@ export const HABITS: Habit[] = [
   },
   {
     id: 'meat-free-day',
-    name: 'Meat-free day',
+    name: 'Meat-Free Day',
     unit: 'days',
     bottlesPerCompletion: 0,
     co2KgPerCompletion: 0.5,
@@ -46,7 +46,7 @@ export const HABITS: Habit[] = [
   },
   {
     id: 'lights-off',
-    name: 'Turned off lights / saved energy',
+    name: 'Turned Off Lights / Saved Energy',
     unit: 'times',
     bottlesPerCompletion: 0,
     co2KgPerCompletion: 0.02,
@@ -54,31 +54,32 @@ export const HABITS: Habit[] = [
   },
   {
     id: 'shorter-shower',
-    name: 'Shorter shower',
-    unit: 'times',
-    bottlesPerCompletion: 0,
+    name: 'Shorter Shower',
+    unit: 'minutes saved',
+    // Approximate water savings shown as 500ml-bottle equivalents per minute.
+    bottlesPerCompletion: 2,
     co2KgPerCompletion: 0.05,
     supportsCount: true,
   },
   {
     id: 'public-transport',
-    name: 'Public transport instead of car',
-    unit: 'trips',
+    name: 'Public Transport Instead of Car',
+    unit: 'km',
     bottlesPerCompletion: 0,
     co2KgPerCompletion: 0.3,
     supportsCount: true,
   },
   {
     id: 'composted',
-    name: 'Composted',
-    unit: 'times',
+    name: 'Food Waste Composted',
+    unit: 'grams',
     bottlesPerCompletion: 0,
     co2KgPerCompletion: 0.05,
     supportsCount: true,
   },
   {
     id: 'paper-recycled',
-    name: 'Paper/cardboard recycled',
+    name: 'Paper/Cardboard Recycled',
     unit: 'items',
     bottlesPerCompletion: 0,
     co2KgPerCompletion: 0.08,
@@ -86,7 +87,7 @@ export const HABITS: Habit[] = [
   },
   {
     id: 'glass-recycled',
-    name: 'Glass recycled',
+    name: 'Glass Recycled',
     unit: 'items',
     bottlesPerCompletion: 0,
     co2KgPerCompletion: 0.1,

@@ -2,8 +2,12 @@ import { useState } from 'react'
 import type { ComponentType } from 'react'
 import type { Habit } from '../types'
 import type { DistanceUnit } from '../lib/distanceUnit'
-import { kmToMiles, milesToKm } from '../lib/distanceUnit'
 import { Bottle, ShoppingBag, Bike, Recycle, Lightbulb, Droplets, Bus, Utensils, Leaf } from './Icons'
+import { useUnitPreferences } from '../hooks/useUnitPreferences'
+import {
+  convertHabitDisplayAmountToBase,
+  getHabitDisplayMeasurement,
+} from '../lib/measurementUnits'
 
 const HABIT_ICONS: Record<string, ComponentType<{ className?: string; size?: number }>> = {
   'no-plastic-bottle': Bottle,
@@ -33,34 +37,52 @@ export function HabitCard({
   habit,
   count = 0,
   onAdjust,
-  distanceUnit = 'km',
+  distanceUnit,
 }: HabitCardProps) {
-  const isDistanceHabit = habit.co2KgPerKm != null
-  const displayTotal = isDistanceHabit && distanceUnit === 'miles' ? kmToMiles(count) : count
-  const unitLabel = isDistanceHabit ? (distanceUnit === 'miles' ? 'mi' : 'km') : habit.unit
-  const unitLabelShort = isDistanceHabit ? unitLabel : habit.unit.replace(/\s+(saved|avoided)$/i, '')
+  const [unitPrefs] = useUnitPreferences()
+  const effectivePrefs = distanceUnit
+    ? { ...unitPrefs, distance: distanceUnit }
+    : unitPrefs
+  const display = getHabitDisplayMeasurement(habit.id, count, effectivePrefs, habit.unit)
   const [addInput, setAddInput] = useState('')
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false)
 
-  const getAmountFromInput = () => {
+  const getAmountValue = () => {
     const parsed = addInput.trim() === '' ? null : parseFloat(addInput)
-    const amount = parsed != null && !Number.isNaN(parsed) && parsed > 0 ? parsed : 1
-    return isDistanceHabit && distanceUnit === 'miles' ? milesToKm(amount) : amount
+    return parsed != null && !Number.isNaN(parsed) && parsed > 0 ? parsed : 1
   }
 
-  const handleAdd = () => {
+  const getAmountFromInput = () => {
+    return convertHabitDisplayAmountToBase(
+      habit.id,
+      getAmountValue(),
+      effectivePrefs,
+      count
+    )
+  }
+
+  const handleQuickAdd = () => {
+    onAdjust(display.quickStepBase)
+  }
+
+  const handleQuickReduce = () => {
+    onAdjust(-display.quickStepBase)
+  }
+
+  const handleCustomAdd = () => {
     onAdjust(getAmountFromInput())
     setAddInput('')
   }
 
-  const handleReduce = () => {
+  const handleCustomReduce = () => {
     onAdjust(-getAmountFromInput())
     setAddInput('')
   }
 
   return (
-    <div className="rounded-lg bg-white border border-slate-200 p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover">
-      <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_220px] items-start sm:items-center gap-4 min-w-0">
-        <div className="flex items-center gap-3 min-w-0">
+    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover">
+      <div className="min-w-0 space-y-4">
+        <div className="flex items-start gap-3 min-w-0">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
             {(() => {
               const Icon = HABIT_ICONS[habit.id] ?? Recycle
@@ -69,41 +91,85 @@ export function HabitCard({
           </div>
           <div className="min-w-0">
             <h3 className="font-semibold text-slate-900 truncate">{habit.name}</h3>
-            <p className="text-sm text-slate-500 mt-0.5 truncate">{habit.unit}</p>
-            <p className="mt-1 text-base font-semibold tabular-nums text-slate-900 truncate">
-              Today: {isDistanceHabit ? Number(displayTotal).toFixed(1) : Math.round(displayTotal)} {unitLabel}
+            <p className="text-sm text-slate-500 mt-0.5 truncate">{display.unit}</p>
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+              Today
+            </p>
+            <p className="mt-0.5 tabular-nums text-slate-900">
+              <span className="text-2xl font-bold">
+                {display.valueLabel}
+              </span>{' '}
+              <span className="text-base font-medium text-slate-600">{display.unit}</span>
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 h-9 justify-end">
-          <label className="flex items-center gap-1.5 h-full">
-            <span className="text-sm text-slate-600 leading-none">Amount:</span>
-            <input
-              type="number"
-              min={0}
-              step={isDistanceHabit ? (distanceUnit === 'miles' ? 0.1 : 0.5) : 1}
-              className="h-9 w-14 rounded-lg border-2 border-slate-300 px-2 py-0 text-sm tabular-nums focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none"
-              value={addInput}
-              placeholder="1"
-              onChange={(e) => setAddInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAdd())}
-            />
-            <span className="inline-block text-sm text-slate-500 leading-none align-middle">{unitLabelShort}</span>
-          </label>
+        <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+          <p className="text-sm font-medium text-slate-600">Quick adjust</p>
+          <div className="inline-flex items-center overflow-hidden rounded-lg border border-slate-300 bg-white">
+            <button
+              type="button"
+              onClick={handleQuickReduce}
+              className="h-11 w-11 bg-slate-50 text-lg font-semibold text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+              aria-label="Decrease by one"
+              title="Decrease by one"
+            >
+              -
+            </button>
+            <div className="min-w-[5.5rem] px-3 text-center text-xs font-medium uppercase tracking-wide text-slate-500">
+              1 {display.shortUnit}
+            </div>
+            <button
+              type="button"
+              onClick={handleQuickAdd}
+              className="h-11 w-11 bg-primary-600 text-lg font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset"
+              aria-label="Increase by one"
+              title="Increase by one"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-100 pt-3">
           <button
             type="button"
-            onClick={handleAdd}
-            className="h-9 rounded-lg px-4 py-0 text-sm font-semibold bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-sm flex items-center justify-center"
+            onClick={() => setIsAdvancedOpen((open) => !open)}
+            className="text-sm font-medium text-primary-700 hover:text-primary-800"
+            aria-expanded={isAdvancedOpen}
           >
-            Log
+            {isAdvancedOpen ? 'Hide custom amount' : 'Custom amount'}
           </button>
-          <button
-            type="button"
-            onClick={handleReduce}
-            className="h-9 rounded-lg px-3 py-0 text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors flex items-center justify-center"
-          >
-            Reduce
-          </button>
+
+          {isAdvancedOpen && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <input
+                type="number"
+                min={0}
+                step={display.inputStep}
+                className="h-11 w-24 rounded-lg border-2 border-slate-300 px-3 py-0 text-sm tabular-nums focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none"
+                value={addInput}
+                placeholder="1"
+                onChange={(e) => setAddInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleCustomAdd())}
+                aria-label={`Custom amount in ${display.shortUnit}`}
+              />
+              <span className="text-sm text-slate-500">{display.shortUnit}</span>
+              <button
+                type="button"
+                onClick={handleCustomReduce}
+                className="h-11 min-w-20 rounded-lg bg-slate-100 px-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+              >
+                Apply -
+              </button>
+              <button
+                type="button"
+                onClick={handleCustomAdd}
+                className="h-11 min-w-20 rounded-lg bg-primary-600 px-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+              >
+                Apply +
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
